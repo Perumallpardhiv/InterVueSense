@@ -68,8 +68,6 @@ const InterviewerCandidateAnalysis = ({ candidate_username, video_path, job_id, 
     const [interviewAnalStarted, setInterviewAnalStarted] = useState(false);
     const [audioStarted, setAudioStarted] = useState(false);
     const [audioCompleted, setAudioCompleted] = useState(false);
-    const [transcriptStarted, setTranscriptStarted] = useState(false);
-    const [transcriptCompleted, setTranscriptCompleted] = useState(false);
     const [candidateProfile, updateCandidateProfile] = useState({
         profile_image: '',
         first_name: '',
@@ -93,71 +91,87 @@ const InterviewerCandidateAnalysis = ({ candidate_username, video_path, job_id, 
         }
     }
 
-    // const ffmpeg = require('@ffmpeg/ffmpeg');
-    // const fs = require('fs');
-    // const util = require('util');
-    // const fetch = require('node-fetch');
-    // const { v4: uuid } = require('uuid');
-    // const readFile = util.promisify(fs.readFile);
+    const fs = require('fs');
+    const { v4: uuid } = require('uuid');
+    const ffmpeg = require('@ffmpeg/ffmpeg');
+    const FormData = require('form-data');
+    const fetch = require('node-fetch');
 
-    // const transcribeVideo = async () => {
-    //     setTranscriptStarted(true);
-    //     const fileData = await readFile("backend/uploads/sample.webm");
-    //     const unique_id = uuid();
-    //     // This checks if ffmpeg is loaded
-    //     if (!ffmpeg.isLoaded()) {
-    //         await ffmpeg.load();
-    //     }
-    //     // This writes the file to memory, removes the video, and converts the audio to mp3
-    //     ffmpeg.FS("writeFile", `${unique_id}.webm`, fileData);
-    //     await ffmpeg.run(
-    //         "-i",
-    //         `${unique_id}.webm`,
-    //         "-vn",
-    //         "-acodec",
-    //         "libmp3lame",
-    //         "-ac",
-    //         "1",
-    //         "-ar",
-    //         "16000",
-    //         "-f",
-    //         "mp3",
-    //         `${unique_id}.mp3`
-    //     );
+    const [transcriptStarted, setTranscriptStarted] = useState(false);
+    const [transcriptCompleted, setTranscriptCompleted] = useState(false);
+
+    const transcribeVideo = async () => {
+        setTranscriptStarted(true);
         
-    //     // This reads the converted file from the file system
-    //     const fileDataMP3 = ffmpeg.FS("readFile", `${unique_id}.mp3`);
-      
-    //     // This creates a new file from the raw data
-    //     const audioFile = new File([fileDataMP3.buffer], `${unique_id}.mp3`, {
-    //       type: "audio/mp3",
-    //     });
-      
-    //     const formData = new FormData();
-    //     formData.append("file", audioFile, `${unique_id}.mp3`);
-    //     formData.append("model", "whisper-1");
-    //     const question = `Tell me about yourself. Why don${`’`}t you walk me through your resume?`;
-    //     const response = await fetch(
-    //       `/api/transcribe?question=${encodeURIComponent(question)}`,
-    //       {
-    //         method: "POST",
-    //         body: formData,
-    //       }
-    //     );
-
-    //     if (!response.ok) {
-    //       throw new Error("Transcription failed.");
-    //     }
-      
-    //     const results = await response.json();
-      
-    //     if (results.error) {
-    //       throw new Error(results.error);
-    //     }
-    //     setTranscriptCompleted(true);
-    //     console.log(results.transcript);
-    //     return results.transcript;
-    // };
+        // Read video file
+        const fileData = await fs.readFile("F:/000 python/Interview-Video-Analysis-master/backend/uploads/sample.webm");
+    
+        // Generate unique ID
+        const unique_id = uuid();
+    
+        // Check if ffmpeg is loaded
+        if (!ffmpeg.isLoaded()) {
+            await ffmpeg.load();
+        }
+    
+        // Write the file to memory, remove the video, and convert audio to mp3
+        ffmpeg.FS("writeFile", `${unique_id}.webm`, fileData);
+        await ffmpeg.run(
+            "-i",
+            `${unique_id}.webm`,
+            "-vn",
+            "-acodec",
+            "libmp3lame",
+            "-ac",
+            "1",
+            "-ar",
+            "16000",
+            "-f",
+            "mp3",
+            `${unique_id}.mp3`
+        );
+    
+        // Read the converted file from the file system
+        const fileDataMP3 = ffmpeg.FS("readFile", `${unique_id}.mp3`);
+    
+        // Create a new file from the raw data
+        const audioFile = new File([fileDataMP3.buffer], `${unique_id}.mp3`, {
+            type: "audio/mp3",
+        });
+    
+        // Create FormData and append audio file and model information
+        const formData = new FormData();
+        formData.append("file", audioFile, `${unique_id}.mp3`);
+        formData.append("model", "whisper-1");
+        const question = `Tell me about yourself. Why don't you walk me through your resume?`;
+    
+        // Make a POST request to the transcription API
+        const response = await fetch(
+            `/api/transcribe?question=${encodeURIComponent(question)}`,
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+    
+        // Check for errors in response
+        if (!response.ok) {
+            throw new Error("Transcription failed.");
+        }
+    
+        // Parse the response as JSON
+        const results = await response.json();
+    
+        // Check for transcription errors
+        if (results.error) {
+            throw new Error(results.error);
+        }
+    
+        // Update transcript status and return transcript
+        setTranscriptCompleted(true);
+        console.log(results.transcript);
+        return results.transcript;
+    };
 
     const REFRESH_INTERVAL = 1500;
     const analizeResume = async () => {
@@ -416,7 +430,7 @@ const InterviewerCandidateAnalysis = ({ candidate_username, video_path, job_id, 
                     </div>
 
                     <div className='job-control-container' style={{ alignSelf: 'flex-start', width: '100%' }}>
-                        <button className='custom-blue'  onClick={analizeAudio} style={{width:'130px'}}> Transcription</button>
+                        <button className='custom-blue'  onClick={transcribeVideo} style={{width:'130px'}}> Transcription</button>
                         {
                             ((transcriptStarted && (!transcriptCompleted))) && <span style={{marginTop:'10px', color:'#411d7aaa', fontSize:'1.1rem', fontWeight:'600'}}> Transcripting Audio ...</span>
                         }
