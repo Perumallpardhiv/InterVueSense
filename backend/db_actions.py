@@ -169,7 +169,7 @@ def schedule_candidate_interview(payload):
     payload['enabled'] = False
     payload['completed'] = False
     payload['time'] = datetime.fromtimestamp(payload['time'], tz = timezone.utc)
-    payload['filename'] = f'uploads/{unique_id()}.webm'
+    payload['filename'] = f'uploads/temp.mp4'
     
     if mongo.interview_list.find_one({'candidate': payload['candidate'],
                                       'job_id': payload['job_id']}):

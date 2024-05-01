@@ -1,4 +1,4 @@
-mport os
+import os
 from pyaudioanalysis import audioSegmentation as aS
 
 # Function to perform speaker diarization

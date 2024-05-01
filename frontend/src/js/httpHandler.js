@@ -277,5 +277,4 @@ export const analizeCanadidateAudio = async (notifier, video_path) => {
         return ''
     }
     return resp.response
-
 }

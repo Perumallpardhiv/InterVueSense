@@ -36,7 +36,6 @@ const LoginPage = () => {
 
                         <span style={{ fontSize: '1rem', color: '#4D4D4D' }}>Doesn't have an account yet ? &nbsp;
                             <b><a href='/sign-up' style={{ color: '#893DFF' }}>Sign-Up</a></b></span><br />
-                        
                         <form>
                             <div className='inp-container'>
                                 <span className='inp-label'>Username </span>

@@ -24,3 +24,6 @@ yarn-error.log*
 README.md
 
 src/pages/sample.webm
+src/pages/sample.mp4
+src/pages/sample.wav
+src/pages/temp.mp4

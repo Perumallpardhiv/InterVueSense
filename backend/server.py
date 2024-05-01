@@ -5,10 +5,12 @@ from flask_cors import CORS, cross_origin
 import db_actions
 from store import task_store
 from job_manager import job_manager
+from ffmconvertor import ffmconvertor
 from resume_similarity import start_similary
 from speech_analyzer import analize_audio
 from video_analyzer import emotion_analyse
 from utils import cprint, unique_filename
+import ffmpeg
 
 app = Flask(__name__)
 app.secret_key = 'dkald@2390'
@@ -289,8 +291,14 @@ def postBlob():
 @cross_origin(supports_credentials=True)
 def serverInterviewVideo():
     file_path = request.args.get('file_path')
+    ffmconvertor.convert_webm_mp4(r'C:\Users\naape\Downloads\sample.webm', r'C:\Users\naape\Downloads\sample.mp4')
     return send_from_directory(*os.path.split(file_path), mimetype='video/webm')
 
+@app.route('/getTxtFile', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def serveTxtFile():
+    file_path = request.args.get('file_path')
+    return send_from_directory(*os.path.split(file_path), mimetype='text/plain')
 
 @app.route('/analyzeCandidateInterview', methods = ['GET'])
 @cross_origin(supports_credentials=True)

@@ -32,7 +32,7 @@ const CandiateDashBoard = () => {
                         interviewList.map((item, index) => {
                             const interview_timestamp = new Date(item.time);
                             const interview_time = `${interview_timestamp.toLocaleTimeString()} ${interview_timestamp.toLocaleDateString()}`
-                            const interview_status = (item.completed)? 'Interview Completed': (item.enabled) ? 'Interview started' : 'Interview not yet started'
+                            const interview_status = (item.completed) ? 'Interview Completed' : (item.enabled) ? 'Interview started' : 'Interview not yet started'
                             return (
                                 <div className='interview-item' key={index}>
                                     <div className='interview-details'>
@@ -43,8 +43,12 @@ const CandiateDashBoard = () => {
                                         <div>Status: </div><b>{interview_status}</b>
                                     </div>
                                     {(item.enabled && (!item.completed)) && <button className='custom-purple' style={{ float: 'right', marginRight: '20px' }}
-                                        onClick={() => { navigate('/candidateInterview', { state: { props: { 'interview_id': item._id,  } } }) }}> Join Interview</button>}
-                                </div>)
+                                        onClick={() => {
+                                            // navigate('/candidateInterview', {state: {props: {'interview_id': item._id,}}})
+                                            window.open('http://localhost:3000/', '_blank');
+                                        }}> Join Interview</button>}
+                                </div>
+                            )
                         })
                     }
                 </div>
